@@ -1,12 +1,15 @@
 # ============================================================
 #  Codebase Install Agentcy with Skill - Windows installer
-#  Cai dat: OpenCode CLI + 24 plugins + day du skills
+#  Cai dat: OpenCode CLI + 24 plugins + skills moi nhat tu provider
+#  Cach chay:  powershell -ExecutionPolicy Bypass -File install.ps1
+#  Hoac (1 lenh, khong can tai gi ca):
+#    irm https://raw.githubusercontent.com/EvoTeckDevTuanAnh/codebase-install-agentcy-with-skill/main/install.ps1 | iex
+#  Chay lai bat ky luc nao -> tu dong cap nhat opencode, plugins, skills moi nhat.
 # ============================================================
 $ErrorActionPreference = "Stop"
 $ProgressPreference = "SilentlyContinue"
 
 $ConfigDir  = Join-Path $HOME ".config\opencode"
-$SkillSrc   = Join-Path $PSScriptRoot "skills"
 $SkillDest  = Join-Path $ConfigDir "skills"
 
 $Plugins = @(
@@ -34,6 +37,19 @@ $Plugins = @(
     "opencode-plugin-litellm",
     "opencode-autosave-conversation",
     "opencode-relay"
+)
+
+# Repo skills chinh thuc cua cac nha cung cap (luon lay ban moi nhat tu main)
+$SkillRepos = @(
+    "anthropics/skills",
+    "openai/skills",
+    "vercel-labs/agent-skills",
+    "hashicorp/agent-skills",
+    "supabase/agent-skills",
+    "netlify/context-and-tools",
+    "stripe/ai",
+    "angular/skills",
+    "VoltAgent/skills"
 )
 
 function Write-Step($msg) { Write-Host "`n==> $msg" -ForegroundColor Cyan }
@@ -95,7 +111,7 @@ $depLines = ($Plugins | ForEach-Object { "    `"$_`":  `"latest`"" }) -join ",`n
 $pkg = @"
 {
   `"dependencies`": {
-    `"@opencode-ai/plugin`": `"1.18.10`",
+    `"@opencode-ai/plugin`": `"latest`",
 $depLines
   }
 }
@@ -114,19 +130,62 @@ finally {
 Write-OK "Plugins da duoc cai dat"
 
 # ------------------------------------------------------------
-# 6. Copy skills vao thu muc cau hinh
+# 6. Tai skills moi nhat tu cac nha cung cap (git clone)
 # ------------------------------------------------------------
-Write-Step "Copy skills"
-if (Test-Path -LiteralPath $SkillSrc) {
-    if (Test-Path -LiteralPath $SkillDest) {
-        Write-Warn "Thu muc $SkillDest da ton tai. Ghi de..."
-        Remove-Item -LiteralPath $SkillDest -Recurse -Force
+Write-Step "Tai skills moi nhat tu cac nha cung cap"
+$tmp = Join-Path $env:TEMP ("opencode-skills-" + [guid]::NewGuid().ToString("N"))
+New-Item -ItemType Directory -Path $tmp -Force | Out-Null
+$total = 0
+try {
+    foreach ($repo in $SkillRepos) {
+        $repoName = ($repo -split "/")[1]
+        Write-Host "  - dang tai $repo ..."
+        $src = $null
+
+        # Cach 1: git clone (shallow)
+        $git = Get-Command git -ErrorAction SilentlyContinue
+        if ($git) {
+            foreach ($attempt in 1..3) {
+                if ($attempt -gt 1) { Start-Sleep -Seconds (3 * $attempt) }
+                $tryDir = Join-Path $tmp ($repoName + "-g" + $attempt)
+                git clone --depth 1 --quiet "https://github.com/$repo.git" $tryDir
+                if ($LASTEXITCODE -eq 0) { $src = $tryDir; break }
+            }
+        }
+
+        # Cach 2: tai tarball tu codeload (endpoint khac, it bi gioi han hon)
+        if (-not $src) {
+            $tgz = Join-Path $tmp ($repoName + ".tar.gz")
+            try {
+                Invoke-WebRequest -Uri "https://codeload.github.com/$repo/tar.gz/refs/heads/main" -OutFile $tgz -UseBasicParsing -ErrorAction Stop
+                $tdir = Join-Path $tmp ($repoName + "-tgz")
+                New-Item -ItemType Directory -Path $tdir -Force | Out-Null
+                & tar.exe -xzf $tgz -C $tdir --strip-components=1
+                if ($LASTEXITCODE -eq 0) { $src = $tdir }
+            } catch {
+                $src = $null
+            }
+        }
+
+        if (-not $src) { Write-Warn "  tai $repo that bai, bo qua. Chay lai script de thu lai."; continue }
+
+        # Tim moi folder chua SKILL.md va copy nguyen folder (ke ca assets/reference files)
+        $seen = @{}
+        $skillDirs = Get-ChildItem -Path $src -Recurse -Filter SKILL.md -File -ErrorAction SilentlyContinue | ForEach-Object {
+            $fn = $_.Directory.FullName
+            if (-not $seen.ContainsKey($fn)) { $seen[$fn] = $true; $fn }
+        }
+        foreach ($d in $skillDirs) {
+            $dest = Join-Path $SkillDest (Split-Path $d -Leaf)
+            Copy-Item -LiteralPath $d -Destination $dest -Recurse -Force
+            $total++
+        }
+        Start-Sleep -Seconds 2
     }
-    Copy-Item -LiteralPath $SkillSrc -Destination $SkillDest -Recurse -Force
-    $skillCount = (Get-ChildItem -Path $SkillDest -Recurse -File).Count
-    Write-OK "Da copy $skillCount file skills vao $SkillDest"
-} else {
-    Write-Warn "Khong tim thay thu muc skills ke ben script. Bo qua buoc copy skills."
+    Write-OK "Da dong bo $total skills (ban moi nhat) vao $SkillDest"
+}
+finally {
+    Remove-Item -LiteralPath $tmp -Recurse -Force -ErrorAction SilentlyContinue
 }
 
 # ------------------------------------------------------------
@@ -135,3 +194,4 @@ if (Test-Path -LiteralPath $SkillSrc) {
 Write-Step "HOAN TAT"
 Write-Host "Cai dat thanh cong! Chay:  opencode" -ForegroundColor Green
 Write-Host "Cau hinh:  $ConfigDir" -ForegroundColor DarkGray
+Write-Host "Luon giu skills moi nhat bang cach chay lai script nay bat ky luc nao." -ForegroundColor DarkGray

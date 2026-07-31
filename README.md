@@ -1,30 +1,36 @@
 # Codebase Install Agentcy with Skill
 
-Cài **OpenCode CLI** + **24 plugins** + **210 skills** chỉ với **1 lệnh duy nhất**.
+Cài **OpenCode CLI** + **24 plugins** + **bộ skills luôn mới nhất từ các nhà cung cấp** chỉ với **1 lệnh duy nhất**.
+
+Không đóng gói sẵn skills trong repo — installer tự tải skills mới nhất từ repo chính thức của từng nhà cung cấp tại thời điểm cài đặt. Chạy lại bất kỳ lúc nào để cập nhật.
 
 Thích hợp cho: Windows (PowerShell) / macOS / Linux.
 
 ---
 
-## ⚡ Cài đặt nhanh (1 lệnh)
+## ⚡ Cài đặt nhanh (1 lệnh, không cần tải gì)
 
 ### Windows (PowerShell)
 ```powershell
-curl -o install.ps1 https://raw.githubusercontent.com/EvoTeckDevTuanAnh/codebase-install-agentcy-with-skill/main/install.ps1
-.\install.ps1
+powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/EvoTeckDevTuanAnh/codebase-install-agentcy-with-skill/main/install.ps1 | iex"
 ```
 
-> Nếu bị chặn ExecutionPolicy:
+> Hoặc tải về rồi chạy:
 > ```powershell
-> powershell -ExecutionPolicy Bypass -File .\install.ps1
+> curl -o install.ps1 https://raw.githubusercontent.com/EvoTeckDevTuanAnh/codebase-install-agentcy-with-skill/main/install.ps1
+> .\install.ps1
 > ```
 
 ### macOS / Linux
 ```bash
-curl -o install.sh https://raw.githubusercontent.com/EvoTeckDevTuanAnh/codebase-install-agentcy-with-skill/main/install.sh
-chmod +x install.sh
-./install.sh
+curl -fsSL https://raw.githubusercontent.com/EvoTeckDevTuanAnh/codebase-install-agentcy-with-skill/main/install.sh | bash
 ```
+
+> Hoặc tải về rồi chạy:
+> ```bash
+> curl -o install.sh https://raw.githubusercontent.com/EvoTeckDevTuanAnh/codebase-install-agentcy-with-skill/main/install.sh
+> bash install.sh
+> ```
 
 ### Chạy OpenCode
 ```bash
@@ -40,9 +46,11 @@ Script `install.ps1` (Windows) / `install.sh` (macOS/Linux) sẽ:
 1. **Kiểm tra Node.js >= 18** và npm
 2. **Cài OpenCode CLI** từ npm: `npm install -g opencode-ai@latest`
 3. **Tạo thư mục cấu hình** `~/.config/opencode/`
-4. **Ghi file `opencode.jsonc`** với **24 plugins** (bản sao cấu hình mẫu trong repo)
+4. **Ghi file `opencode.jsonc`** với **24 plugins**
 5. **Cài 24 plugins** từ npm (`npm install`)
-6. **Copy toàn bộ 210 skills** (kèm reference files/scripts/assets) từ thư mục `skills/` trong repo vào `~/.config/opencode/skills/`
+6. **Tải skills mới nhất** từ **9 repo chính thức** của các nhà cung cấp (`git clone --depth 1`, fallback qua tarball nếu bị giới hạn) rồi copy toàn bộ folder skill (kèm reference files/scripts/assets) vào `~/.config/opencode/skills/`
+
+> Cơ chế "live": mỗi lần chạy script, skills được lấy thẳng từ `main` của repo nguồn — luôn là phiên bản mới nhất, không bao giờ lỗi thời. Nếu một repo tải thất bại (mạng/rate-limit), script cảnh báo và tiếp tục; chạy lại là sẽ lấy đủ.
 
 ---
 
@@ -77,18 +85,21 @@ Script `install.ps1` (Windows) / `install.sh` (macOS/Linux) sẽ:
 
 ---
 
-## 🧠 210 skills theo chủ đề
+## 🌐 Nguồn skills (9 repo chính thức, luôn cập nhật)
 
-- **Angular (10)**: component, di, directives, forms, http, routing, signals, ssr, testing, tooling
-- **HashiCorp Terraform/Packer (18)**: aws-ami-builder, azure-image-builder, azure-verified-modules, provider-*, terraform-*, new-terraform-provider, push-to-registry, refactor-module, windows-builder...
-- **Netlify (16)**: access-control, ai-gateway, blobs, caching, config, database, deploy, edge-functions, forms, frameworks, functions, identity, image-cdn, mcp-servers, agent-runner...
-- **OpenAI/ChatGPT (5)**: openai-docs, chatgpt-apps, migrate-to-codex, plugin-creator, skill-creator
-- **Stripe (7)**: connect-recommend, stripe-best-practices, stripe-directory, stripe-docs, stripe-projects, upgrade-stripe...
-- **Vercel (9)**: vercel-cli-with-tokens, vercel-deploy, vercel-optimize, vercel-react-best-practices, vercel-react-native-skills, vercel-react-view-transitions...
-- **Swarm (11)**: swarm, swarm-ci-monitor, swarm-implement, swarm-pr-feedback, swarm-pr-review, swarm-pr-subscribe...
-- **Khác**: claude-api, docx, pptx, xlsx, pdf, figma-*, playwright, supabase, aspnet-core, winui-app, cloudflare-deploy, docker/CI-CD...
+| # | Nguồn | Skills nổi bật |
+|---|-------|----------------|
+| 1 | `anthropics/skills` | brand-guidelines, canvas-design, docx, pdf, pptx, xlsx, pdf, screenshot, slack-gif-creator... |
+| 2 | `openai/skills` | chatgpt-apps, openai-docs, migrate-to-codex, plugin-creator, skill-creator... |
+| 3 | `vercel-labs/agent-skills` | vercel-deploy, vercel-optimize, vercel-react-best-practices, web-artifacts-builder... |
+| 4 | `hashicorp/agent-skills` | terraform-style-guide, terraform-test, provider-*, azure-verified-modules... |
+| 5 | `supabase/agent-skills` | supabase, supabase-postgres-best-practices... |
+| 6 | `netlify/context-and-tools` | netlify-ai-gateway, netlify-deploy, netlify-functions, netlify-blobs, netlify-identity... |
+| 7 | `stripe/ai` | stripe-best-practices, stripe-docs, stripe-projects, connect-recommend... |
+| 8 | `angular/skills` | angular-developer, angular-new-app |
+| 9 | `VoltAgent/skills` | create-voltagent, voltagent-best-practices, voltagent-docs-bundle |
 
-Danh sách đầy đủ 210 skills nằm trong thư mục [`skills/`](skills/) của repo này.
+Cộng thêm skills từ `opencode-swarm` (swarm, feature-dev, code-review...) — tổng khoảng **170+ skills**.
 
 ---
 
@@ -99,16 +110,18 @@ Danh sách đầy đủ 210 skills nằm trong thư mục [`skills/`](skills/) c
 | `install.ps1` | Script cài đặt cho Windows (PowerShell) |
 | `install.sh` | Script cài đặt cho macOS/Linux |
 | `opencode.jsonc` | File cấu hình plugins mẫu |
-| `skills/` | 210 skills đóng gói sẵn (copy trực tiếp vào `~/.config/opencode/skills/`) |
 | `README.md` | Hướng dẫn này |
+
+> Không còn đóng gói `skills/` trong repo — skills được tải trực tiếp từ nguồn chính thức tại lúc cài.
 
 ---
 
 ## ❓ Yêu cầu hệ thống
 
 - **Node.js >= 18** + npm (tải từ https://nodejs.org)
+- **git** (khuyến nghị; nếu không có, script tự fallback tải tarball — cần `curl` trên macOS/Linux hoặc sẵn có trên Windows)
 - **Windows**: PowerShell 5.1+ (có sẵn trên Windows 10/11)
-- **macOS/Linux**: bash
+- **macOS/Linux**: bash + `curl` + `tar`
 
 ---
 

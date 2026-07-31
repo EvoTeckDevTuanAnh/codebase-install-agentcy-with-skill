@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
 # ============================================================
 #  Codebase Install Agentcy with Skill - macOS/Linux installer
-#  Cai dat: OpenCode CLI + 24 plugins + day du skills
+#  Cai dat: OpenCode CLI + 24 plugins + skills moi nhat tu provider
 #  Cach chay:  bash install.sh
+#  Hoac (1 lenh, khong can tai gi ca):
+#    curl -fsSL https://raw.githubusercontent.com/EvoTeckDevTuanAnh/codebase-install-agentcy-with-skill/main/install.sh | bash
+#  Chay lai bat ky luc nao -> tu dong cap nhat opencode, plugins, skills moi nhat.
 # ============================================================
 set -euo pipefail
 
 CONFIG_DIR="${HOME}/.config/opencode"
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SKILL_SRC="${SCRIPT_DIR}/skills"
 SKILL_DEST="${CONFIG_DIR}/skills"
 
 PLUGINS=(
@@ -36,6 +37,19 @@ PLUGINS=(
   "opencode-plugin-litellm"
   "opencode-autosave-conversation"
   "opencode-relay"
+)
+
+# Repo skills chinh thuc cua cac nha cung cap (luon lay ban moi nhat tu main)
+SKILL_REPOS=(
+  "anthropics/skills"
+  "openai/skills"
+  "vercel-labs/agent-skills"
+  "hashicorp/agent-skills"
+  "supabase/agent-skills"
+  "netlify/context-and-tools"
+  "stripe/ai"
+  "angular/skills"
+  "VoltAgent/skills"
 )
 
 step() { printf "\n==> %s\n" "$1"; }
@@ -77,12 +91,12 @@ step "Ghi file cau hinh opencode.jsonc"
   printf '{\n'
   printf '  "$schema": "https://opencode.ai/config.json",\n'
   printf '  "plugin": [\n'
-  for p in "${PLUGINS[@]}"; do
-    printf '    "%s",\n' "${p}"
+  last=$(( ${#PLUGINS[@]} - 1 ))
+  for i in "${!PLUGINS[@]}"; do
+    sep=","
+    [ "$i" -eq "$last" ] && sep=""
+    printf '    "%s"%s\n' "${PLUGINS[$i]}" "${sep}"
   done
-  # bo di dau phay o dong cuoi
-  sed -i '' -e '$ s/,$//' "${CONFIG_DIR}/opencode.jsonc" 2>/dev/null || \
-  sed -i -e '$ s/,$//' "${CONFIG_DIR}/opencode.jsonc" 2>/dev/null || true
   printf '  ]\n'
   printf '}\n'
 } > "${CONFIG_DIR}/opencode.jsonc"
@@ -95,16 +109,16 @@ step "Cai dat cac plugin tu npm"
 {
   printf '{\n'
   printf '  "dependencies": {\n'
-  printf '    "@opencode-ai/plugin": "1.18.10",\n'
-  for p in "${PLUGINS[@]}"; do
-    printf '    "%s": "latest",\n' "${p}"
+  printf '    "@opencode-ai/plugin": "latest",\n'
+  last=$(( ${#PLUGINS[@]} - 1 ))
+  for i in "${!PLUGINS[@]}"; do
+    sep=","
+    [ "$i" -eq "$last" ] && sep=""
+    printf '    "%s": "latest"%s\n' "${PLUGINS[$i]}" "${sep}"
   done
-  # bo di dau phay o dong cuoi
   printf '  }\n'
   printf '}\n'
 } > "${CONFIG_DIR}/package.json"
-sed -i '' -e 's/,$//' "${CONFIG_DIR}/package.json" 2>/dev/null || \
-sed -i -e 's/,$//' "${CONFIG_DIR}/package.json" 2>/dev/null || true
 
 (
   cd "${CONFIG_DIR}" || exit 1
@@ -113,19 +127,59 @@ sed -i -e 's/,$//' "${CONFIG_DIR}/package.json" 2>/dev/null || true
 ok "Plugins da duoc cai dat"
 
 # ------------------------------------------------------------
-# 6. Copy skills vao thu muc cau hinh
+# 6. Tai skills moi nhat tu cac nha cung cap (git clone)
 # ------------------------------------------------------------
-step "Copy skills"
-if [ -d "${SKILL_SRC}" ]; then
-  if [ -d "${SKILL_DEST}" ]; then
-    warn "Thu muc ${SKILL_DEST} da ton tai. Ghi de..."
-    rm -rf "${SKILL_DEST}"
-  fi
-  cp -R "${SKILL_SRC}" "${SKILL_DEST}"
-  SKILL_COUNT=$(find "${SKILL_DEST}" -type f | wc -l | tr -d ' ')
-  ok "Da copy ${SKILL_COUNT} file skills vao ${SKILL_DEST}"
+step "Tai skills moi nhat tu cac nha cung cap"
+if ! command -v git >/dev/null 2>&1 && ! command -v curl >/dev/null 2>&1; then
+  warn "Thieu ca git va curl. Bo qua buoc tai skills (plugins van hoat dong)."
 else
-  warn "Khong tim thay thu muc skills ke ben script. Bo qua buoc copy skills."
+  TMP_DIR="$(mktemp -d)"
+  TOTAL=0
+  for repo in "${SKILL_REPOS[@]}"; do
+    repo_name="${repo##*/}"
+    echo "  - dang tai ${repo} ..."
+    src=""
+
+    # Cach 1: git clone (shallow)
+    if command -v git >/dev/null 2>&1; then
+      for attempt in 1 2 3; do
+        [ "$attempt" -gt 1 ] && sleep $((3 * attempt))
+        if git clone --depth 1 --quiet "https://github.com/${repo}.git" "${TMP_DIR}/${repo_name}-g${attempt}" 2>/dev/null; then
+          src="${TMP_DIR}/${repo_name}-g${attempt}"
+          break
+        fi
+      done
+    fi
+
+    # Cach 2: tai tarball tu codeload (endpoint khac, it bi gioi han hon)
+    if [ -z "$src" ] && command -v curl >/dev/null 2>&1; then
+      tgz="${TMP_DIR}/${repo_name}.tar.gz"
+      tdir="${TMP_DIR}/${repo_name}-tgz"
+      if curl -fsSL -o "$tgz" "https://codeload.github.com/${repo}/tar.gz/refs/heads/main" 2>/dev/null; then
+        mkdir -p "$tdir"
+        if tar -xzf "$tgz" -C "$tdir" --strip-components=1 2>/dev/null; then
+          src="$tdir"
+        fi
+      fi
+    fi
+
+    if [ -z "$src" ]; then
+      warn "  tai ${repo} that bai, bo qua. Chay lai script de thu lai."
+      continue
+    fi
+    # Tim moi folder chua SKILL.md va copy nguyen folder (ke ca assets/reference files)
+    while IFS= read -r f; do
+      [ -n "$f" ] || continue
+      d="$(dirname "$f")"
+      name="$(basename "$d")"
+      mkdir -p "${SKILL_DEST}"
+      cp -R "$d" "${SKILL_DEST}/${name}"
+      TOTAL=$((TOTAL+1))
+    done < <(find "${src}" -name SKILL.md -type f)
+    sleep 2
+  done
+  rm -rf "${TMP_DIR}"
+  ok "Da dong bo ${TOTAL} skills (ban moi nhat) vao ${SKILL_DEST}"
 fi
 
 # ------------------------------------------------------------
@@ -134,3 +188,4 @@ fi
 step "HOAN TAT"
 ok "Cai dat thanh cong! Chay:  opencode"
 echo "Cau hinh:  ${CONFIG_DIR}"
+echo "Luon giu skills moi nhat bang cach chay lai script nay bat ky luc nao."
