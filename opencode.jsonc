@@ -1,0 +1,29 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": [
+    "opencode-chrome-devtools",
+    "opencode-pty",
+    "@prevalentware/opencode-goal-plugin",
+    "opencode-swarm",
+    "@zenobius/opencode-skillful",
+    "opencode-goal-plugin",
+    "opencode-kiro-auth",
+    "@hueyexe/opencode-ensemble@0.16.0",
+    "@morphllm/opencode-morph-plugin",
+    "opencode-gemini-auth",
+    "opencode-beads",
+    "opencode-websearch-cited",
+    "spotme",
+    "opencode-sessions",
+    "@ishaksebsib/opencode-tree",
+    "opencode-rules",
+    "opencode-ralph-loop",
+    "opencode-browser",
+    "@zenobius/opencode-background",
+    "@howaboua/pickle-thinker",
+    "opencode-rag-plugin",
+    "opencode-plugin-litellm",
+    "opencode-autosave-conversation",
+    "opencode-relay"
+  ]
+}
