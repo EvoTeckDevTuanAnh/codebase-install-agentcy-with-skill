@@ -1,9 +1,29 @@
 # === 1 file duy nhat - Copy paste vao terminal ===
 
-Write-Host "=== Cai dat 11 plugins ===" -ForegroundColor Cyan
-pnpm add -w opencode-chrome-devtools@latest opencode-pty @prevalentware/opencode-goal-plugin opencode-swarm @zenobius/opencode-skillful opencode-goal-plugin opencode-kiro-auth @hueyexe/opencode-ensemble@0.16.0 @morphllm/opencode-morph-plugin opencode-gemini-auth
+Write-Host "=== Buoc 1: Cai dat 26 plugins tu npm ===" -ForegroundColor Cyan
+pnpm add -w opencode-chrome-devtools@latest opencode-pty @prevalentware/opencode-goal-plugin opencode-swarm @zenobius/opencode-skillful opencode-goal-plugin opencode-kiro-auth @hueyexe/opencode-ensemble@0.16.0 @morphllm/opencode-morph-plugin opencode-gemini-auth opencode-beads opencode-websearch-cited spotme opencode-sessions @ishaksebsib/opencode-tree opencode-rules opencode-ralph-loop opencode-auto-resume opencode-browser @zenobius/opencode-background @renjfk/opencode-voice @howaboua/pickle-thinker opencode-rag-plugin opencode-plugin-litellm opencode-autosave-conversation opencode-relay
 
-Write-Host "=== Cai dat 200 skills ===" -ForegroundColor Cyan
+Write-Host "=== Buoc 2: Clone cac plugin khong tren npm ===" -ForegroundColor Cyan
+$tmp = "$env:TEMP\opencode"
+New-Item -ItemType Directory -Path $tmp -Force | Out-Null
+
+@{
+  "message-bridge-opencode-plugin" = "https://github.com/YuanG1944/message-bridge-opencode-plugin.git"
+  "opencode-power-pack" = "https://github.com/waybarrios/opencode-power-pack.git"
+  "opencode-context-cache" = "https://github.com/JackDrogon/opencode-context-cache.git"
+  "opencode-ralph" = "https://github.com/rot13maxi/opencode-ralph.git"
+  "omem" = "https://github.com/ourmem/omem.git"
+}.GetEnumerator() | ForEach-Object {
+  $dir = "$tmp\$($_.Key)"
+  if (-not (Test-Path $dir)) {
+    git clone $_.Value $dir 2>$null
+    Write-Host "  Cloned $($_.Key)" -ForegroundColor Green
+  } else {
+    Write-Host "  $($_.Key) da co san" -ForegroundColor Yellow
+  }
+}
+
+Write-Host "=== Buoc 3: Cai dat 200 skills ===" -ForegroundColor Cyan
 
 $swarm = "brainstorm","clarify","clarify-spec","codebase-review-swarm","commit-pr","consult","council","critic-gate","deep-dive","deep-research","design-docs","discover","engineering-conventions","execute","fork-pr-operations","gate-attribution","issue-ingest","issue-tracer","loop","merge-queue-readiness","parallel-work-check","phase-wrap","plan","pre-phase-briefing","resume","running-tests","specify","swarm","swarm-ci-monitor","swarm-implement","swarm-pr-feedback","swarm-pr-review","swarm-pr-subscribe","test-file-split","worktree-retry-cleanup","writing-tests","ci-failure-batching","ci-fix-monitor","skill-edit-validation"
 
@@ -35,7 +55,6 @@ foreach ($s in $angular) { npx skills@latest add analogjs/angular-skills --skill
 foreach ($s in $terraform) { npx skills@latest add hashicorp/agent-skills --skill $s 2>$null }
 foreach ($s in $opencode) { npx skills@latest add openai/skills --skill $s 2>$null }
 
-# Other sources
 npx skills@latest add opencode-ai/opencode-chrome-devtools --skill browser-automation 2>$null
 npx skills@latest add opencode-ai/opencode-plugin-creator --skill plugin-creator 2>$null
 npx skills@latest add vercel-labs/skills --skill find-skills 2>$null
@@ -44,7 +63,12 @@ npx skills@latest add voltagent/skills --skill voltagent-best-practices 2>$null
 npx skills@latest add voltagent/skills --skill voltagent-docs-bundle 2>$null
 npx skills@latest add anthropic/skills --skill skill-creator 2>$null
 
-Write-Host "=== Tao opencode.json ===" -ForegroundColor Cyan
+# Skills tu opencode-power-pack
+Copy-Item "$tmp\opencode-power-pack\skills\*" ".agents\skills\" -Recurse -Force 2>$null
+# Skill tu opencode-relay-ashotn
+Copy-Item "$tmp\opencode-relay-ashotn\.opencode\skills\*" ".agents\skills\" -Recurse -Force 2>$null
+
+Write-Host "=== Buoc 4: Tao opencode.json ===" -ForegroundColor Cyan
 $config = @'
 {
   "$schema": "https://opencode.ai/config.json",
@@ -58,10 +82,32 @@ $config = @'
     "opencode-kiro-auth",
     "@hueyexe/opencode-ensemble@0.16.0",
     "@morphllm/opencode-morph-plugin",
-    "opencode-gemini-auth"
+    "opencode-gemini-auth",
+    "opencode-beads",
+    "opencode-websearch-cited",
+    "spotme",
+    "opencode-sessions",
+    "@ishaksebsib/opencode-tree",
+    "opencode-rules",
+    "opencode-ralph-loop",
+    "opencode-auto-resume",
+    "opencode-browser",
+    "@zenobius/opencode-background",
+    "@renjfk/opencode-voice",
+    "@howaboua/pickle-thinker",
+    "opencode-rag-plugin",
+    "opencode-plugin-litellm",
+    "opencode-autosave-conversation",
+    "opencode-relay",
+    "file:///C:/Users/ACER/AppData/Local/Temp/opencode/message-bridge-opencode-plugin/index.ts",
+    "file:///C:/Users/ACER/AppData/Local/Temp/opencode/opencode-power-pack/.opencode/plugins/opencode-power-pack.js",
+    "file:///C:/Users/ACER/AppData/Local/Temp/opencode/opencode-context-cache/plugins/opencode-context-cache.mjs",
+    "file:///C:/Users/ACER/AppData/Local/Temp/opencode/opencode-ralph/plugin/ralph.ts",
+    "file:///C:/Users/ACER/AppData/Local/Temp/opencode/omem/plugins/opencode/src/index.ts"
   ]
 }
 '@
 $config | Out-File -FilePath opencode.json -Encoding utf8
 
-Write-Host "=== DONE! Gõ 'opencode' de bat dau ===" -ForegroundColor Green
+Write-Host "=== DONE! Tong cong: 31 plugins + 200 skills ===" -ForegroundColor Green
+Write-Host "Gõ 'opencode' de bat dau su dung" -ForegroundColor Yellow

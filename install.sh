@@ -1,8 +1,32 @@
 #!/bin/bash
 set -e
 
-echo "=== Cai dat 11 plugins ==="
-pnpm add -w opencode-chrome-devtools@latest opencode-pty @prevalentware/opencode-goal-plugin opencode-swarm @zenobius/opencode-skillful opencode-goal-plugin opencode-kiro-auth @hueyexe/opencode-ensemble@0.16.0 @morphllm/opencode-morph-plugin opencode-gemini-auth
+echo "=== Cai dat 26 plugins tu npm ==="
+pnpm add -w opencode-chrome-devtools@latest opencode-pty @prevalentware/opencode-goal-plugin opencode-swarm @zenobius/opencode-skillful opencode-goal-plugin opencode-kiro-auth @hueyexe/opencode-ensemble@0.16.0 @morphllm/opencode-morph-plugin opencode-gemini-auth opencode-beads opencode-websearch-cited spotme opencode-sessions @ishaksebsib/opencode-tree opencode-rules opencode-ralph-loop opencode-auto-resume opencode-browser @zenobius/opencode-background @renjfk/opencode-voice @howaboua/pickle-thinker opencode-rag-plugin opencode-plugin-litellm opencode-autosave-conversation opencode-relay
+
+echo "=== Clone cac plugin khong tren npm ==="
+export TMPDIR=$(mktemp -d)
+mkdir -p "$TMPDIR/opencode"
+
+repos=(
+  "message-bridge-opencode-plugin:https://github.com/YuanG1944/message-bridge-opencode-plugin.git"
+  "opencode-power-pack:https://github.com/waybarrios/opencode-power-pack.git"
+  "opencode-context-cache:https://github.com/JackDrogon/opencode-context-cache.git"
+  "opencode-ralph:https://github.com/rot13maxi/opencode-ralph.git"
+  "omem:https://github.com/ourmem/omem.git"
+)
+
+for entry in "${repos[@]}"; do
+  name="${entry%%:*}"
+  url="${entry#*:}"
+  dir="$TMPDIR/opencode/$name"
+  if [ ! -d "$dir" ]; then
+    git clone "$url" "$dir" 2>/dev/null
+    echo "  Cloned $name"
+  else
+    echo "  $name da co san"
+  fi
+done
 
 echo "=== Cai dat 200 skills ==="
 
@@ -59,10 +83,15 @@ npx skills@latest add voltagent/skills --skill create-voltagent 2>/dev/null
 npx skills@latest add voltagent/skills --skill voltagent-best-practices 2>/dev/null
 npx skills@latest add voltagent/skills --skill voltagent-docs-bundle 2>/dev/null
 
+# Skills tu opencode-power-pack
+cp -r "$TMPDIR/opencode/opencode-power-pack/skills/"* ".agents/skills/" 2>/dev/null || true
+# Skill tu opencode-relay-ashotn
+cp -r "$TMPDIR/opencode/opencode-relay-ashotn/.opencode/skills/"* ".agents/skills/" 2>/dev/null || true
+
 echo "=== Tao opencode.json ==="
-cat > opencode.json << 'EOF'
+cat > opencode.json << EOF
 {
-  "$schema": "https://opencode.ai/config.json",
+  "\$schema": "https://opencode.ai/config.json",
   "plugin": [
     "opencode-chrome-devtools@latest",
     "opencode-pty",
@@ -73,9 +102,31 @@ cat > opencode.json << 'EOF'
     "opencode-kiro-auth",
     "@hueyexe/opencode-ensemble@0.16.0",
     "@morphllm/opencode-morph-plugin",
-    "opencode-gemini-auth"
+    "opencode-gemini-auth",
+    "opencode-beads",
+    "opencode-websearch-cited",
+    "spotme",
+    "opencode-sessions",
+    "@ishaksebsib/opencode-tree",
+    "opencode-rules",
+    "opencode-ralph-loop",
+    "opencode-auto-resume",
+    "opencode-browser",
+    "@zenobius/opencode-background",
+    "@renjfk/opencode-voice",
+    "@howaboua/pickle-thinker",
+    "opencode-rag-plugin",
+    "opencode-plugin-litellm",
+    "opencode-autosave-conversation",
+    "opencode-relay",
+    "file://$TMPDIR/opencode/message-bridge-opencode-plugin/index.ts",
+    "file://$TMPDIR/opencode/opencode-power-pack/.opencode/plugins/opencode-power-pack.js",
+    "file://$TMPDIR/opencode/opencode-context-cache/plugins/opencode-context-cache.mjs",
+    "file://$TMPDIR/opencode/opencode-ralph/plugin/ralph.ts",
+    "file://$TMPDIR/opencode/omem/plugins/opencode/src/index.ts"
   ]
 }
 EOF
 
-echo "=== DONE! Gõ 'opencode' de bat dau ==="
+echo "=== DONE! Tong cong: 31 plugins + 200 skills ==="
+echo "Go 'opencode' de bat dau"

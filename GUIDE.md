@@ -38,7 +38,7 @@ docs/                  # Documentation
 
 ---
 
-## 2. OpenCode Plugins (11 plugins)
+## 2. OpenCode Plugins (31 plugins)
 
 > Sau khi cài OpenCode, tạo file `opencode.json` với nội dung:
 
@@ -56,30 +56,50 @@ docs/                  # Documentation
     "@hueyexe/opencode-ensemble@0.16.0",
     "@morphllm/opencode-morph-plugin",
     "opencode-gemini-auth",
-    "file:///path/to/message-bridge-opencode-plugin/index.ts"
+    "opencode-beads",
+    "opencode-websearch-cited",
+    "spotme",
+    "opencode-sessions",
+    "@ishaksebsib/opencode-tree",
+    "opencode-rules",
+    "opencode-ralph-loop",
+    "opencode-auto-resume",
+    "opencode-browser",
+    "@zenobius/opencode-background",
+    "@renjfk/opencode-voice",
+    "@howaboua/pickle-thinker",
+    "opencode-rag-plugin",
+    "opencode-plugin-litellm",
+    "opencode-autosave-conversation",
+    "opencode-relay",
+    "file:///path/to/message-bridge-opencode-plugin/index.ts",
+    "file:///path/to/opencode-power-pack/.opencode/plugins/opencode-power-pack.js",
+    "file:///path/to/opencode-context-cache/plugins/opencode-context-cache.mjs",
+    "file:///path/to/opencode-ralph/plugin/ralph.ts",
+    "file:///path/to/omem/plugins/opencode/src/index.ts"
   ]
 }
 ```
 
+> **Lưu ý**: `agentsys` và `openpets` **KHÔNG phải** OpenCode plugins.
+> - `agentsys` là một CLI tool standalone (dùng `npx agentsys`), không phải OpenCode plugin.
+> - `openpets` là một desktop app riêng, không liên quan đến hệ thống plugin của OpenCode.
+
 Hoặc chạy câu lệnh sau (copy & paste vào terminal sau khi cd vào project):
 
 ```bash
-# ===== CAI DAT 11 PLUGIN =====
-pnpm add -w opencode-chrome-devtools@latest
-pnpm add -w opencode-pty
-pnpm add -w @prevalentware/opencode-goal-plugin
-pnpm add -w opencode-swarm
-pnpm add -w @zenobius/opencode-skillful
-pnpm add -w opencode-goal-plugin
-pnpm add -w opencode-kiro-auth
-pnpm add -w @hueyexe/opencode-ensemble@0.16.0
-pnpm add -w @morphllm/opencode-morph-plugin
-pnpm add -w opencode-gemini-auth
+# ===== CAI DAT 26 PLUGIN TU NPM =====
+pnpm add -w opencode-chrome-devtools@latest opencode-pty @prevalentware/opencode-goal-plugin opencode-swarm @zenobius/opencode-skillful opencode-goal-plugin opencode-kiro-auth @hueyexe/opencode-ensemble@0.16.0 @morphllm/opencode-morph-plugin opencode-gemini-auth opencode-beads opencode-websearch-cited spotme opencode-sessions @ishaksebsib/opencode-tree opencode-rules opencode-ralph-loop opencode-auto-resume opencode-browser @zenobius/opencode-background @renjfk/opencode-voice @howaboua/pickle-thinker opencode-rag-plugin opencode-plugin-litellm opencode-autosave-conversation opencode-relay
 
-# Plugin message-bridge (khong co tren npm, can clone)
-git clone https://github.com/YuanG1944/message-bridge-opencode-plugin.git
-# Sau do cai bun: npm install -g bun
-# cd message-bridge-opencode-plugin && bun install
+# ===== CLONE 5 PLUGIN KHONG TREN NPM =====
+export TMPDIR=$(mktemp -d)
+mkdir -p "$TMPDIR/opencode"
+
+git clone https://github.com/YuanG1944/message-bridge-opencode-plugin.git "$TMPDIR/opencode/message-bridge-opencode-plugin"
+git clone https://github.com/waybarrios/opencode-power-pack.git "$TMPDIR/opencode/opencode-power-pack"
+git clone https://github.com/JackDrogon/opencode-context-cache.git "$TMPDIR/opencode/opencode-context-cache"
+git clone https://github.com/rot13maxi/opencode-ralph.git "$TMPDIR/opencode/opencode-ralph"
+git clone https://github.com/ourmem/omem.git "$TMPDIR/opencode/omem"
 ```
 
 ### Chi tiết từng plugin
@@ -96,7 +116,37 @@ git clone https://github.com/YuanG1944/message-bridge-opencode-plugin.git
 | 8 | `@hueyexe/opencode-ensemble` | Parallel AI agents team | Cần Node >= 24 |
 | 9 | `@morphllm/opencode-morph-plugin` | Fast Apply, WarpGrep, codebase search | Cần `MORPH_API_KEY` |
 | 10 | `opencode-gemini-auth` | Google OAuth -> Gemini models | Dùng Gemini trong OpenCode |
-| 11 | `message-bridge-opencode-plugin` | Message bridge (Feishu, Telegram, QQ) | Cần bun, clone local |
+| 11 | `opencode-beads` | Plugin beads | npm |
+| 12 | `opencode-websearch-cited` | Web search with citations | npm |
+| 13 | `spotme` | Plugin spotme | npm |
+| 14 | `opencode-sessions` | Quản lý sessions | npm |
+| 15 | `@ishaksebsib/opencode-tree` | Codebase tree visualization | npm |
+| 16 | `opencode-rules` | Quản lý rules | npm |
+| 17 | `opencode-ralph-loop` | Ralph loop plugin | npm |
+| 18 | `opencode-auto-resume` | Auto resume plugin | npm |
+| 19 | `opencode-browser` | Browser automation | npm |
+| 20 | `@zenobius/opencode-background` | Background tasks | npm |
+| 21 | `@renjfk/opencode-voice` | Voice support | npm |
+| 22 | `@howaboua/pickle-thinker` | Pickle thinker | npm |
+| 23 | `opencode-rag-plugin` | RAG plugin | npm |
+| 24 | `opencode-plugin-litellm` | LiteLLM integration | npm |
+| 25 | `opencode-autosave-conversation` | Tự động lưu conversation | npm |
+| 26 | `opencode-relay` | Plugin relay | npm |
+| 27 | `message-bridge-opencode-plugin` | Message bridge (Feishu, Telegram, QQ) | Cần bun, clone local |
+| 28 | `opencode-power-pack` | Power pack plugin (kèm skills) | Clone local, copy skills vào `.agents/skills` |
+| 29 | `opencode-context-cache` | Context caching | Clone local |
+| 30 | `opencode-ralph` | Plugin Ralph | Clone local |
+| 31 | `omem` | Plugin omem | Clone local |
+
+### 5 Repos đã clone
+
+| # | Repo | URL | Mục đích |
+|---|------|-----|----------|
+| 1 | `message-bridge-opencode-plugin` | https://github.com/YuanG1944/message-bridge-opencode-plugin.git | Kết nối Feishu/Telegram/QQ |
+| 2 | `opencode-power-pack` | https://github.com/waybarrios/opencode-power-pack.git | Power pack plugin + skills |
+| 3 | `opencode-context-cache` | https://github.com/JackDrogon/opencode-context-cache.git | Context caching |
+| 4 | `opencode-ralph` | https://github.com/rot13maxi/opencode-ralph.git | Plugin Ralph |
+| 5 | `omem` | https://github.com/ourmem/omem.git | Plugin omem |
 
 ---
 
@@ -319,7 +369,7 @@ npx skills@latest add voltagent/skills --skill voltagent-docs-bundle 2>/dev/null
 ### OpenCode Swarm Skills (39 skills)
 `brainstorm`, `clarify`, `clarify-spec`, `codebase-review-swarm`, `commit-pr`, `consult`, `council`, `critic-gate`, `deep-dive`, `deep-research`, `design-docs`, `discover`, `engineering-conventions`, `execute`, `fork-pr-operations`, `gate-attribution`, `issue-ingest`, `issue-tracer`, `loop`, `merge-queue-readiness`, `parallel-work-check`, `phase-wrap`, `plan`, `pre-phase-briefing`, `resume`, `running-tests`, `specify`, `swarm`, `swarm-ci-monitor`, `swarm-implement`, `swarm-pr-feedback`, `swarm-pr-review`, `swarm-pr-subscribe`, `test-file-split`, `worktree-retry-cleanup`, `writing-tests`, `ci-failure-batching`, `ci-fix-monitor`, `skill-edit-validation`
 
-### Other Skills (5 skills)
+### Other Skills (6 skills)
 `browser-automation` (từ opencode-chrome-devtools), `plugin-creator` (từ opencode-plugin-creator), `find-skills` (từ vercel-labs/skills), `create-voltagent`, `voltagent-best-practices`, `voltagent-docs-bundle` (từ voltagent/skills)
 
 ---
@@ -393,16 +443,27 @@ cd ai-agency-simulator
 pnpm install
 ```
 
-### Bước 3: Cài plugins
+### Bước 3: Cài 26 plugins từ npm
 ```bash
-pnpm add -w opencode-chrome-devtools@latest opencode-pty @prevalentware/opencode-goal-plugin opencode-swarm @zenobius/opencode-skillful opencode-goal-plugin opencode-kiro-auth @hueyexe/opencode-ensemble@0.16.0 @morphllm/opencode-morph-plugin opencode-gemini-auth
+pnpm add -w opencode-chrome-devtools@latest opencode-pty @prevalentware/opencode-goal-plugin opencode-swarm @zenobius/opencode-skillful opencode-goal-plugin opencode-kiro-auth @hueyexe/opencode-ensemble@0.16.0 @morphllm/opencode-morph-plugin opencode-gemini-auth opencode-beads opencode-websearch-cited spotme opencode-sessions @ishaksebsib/opencode-tree opencode-rules opencode-ralph-loop opencode-auto-resume opencode-browser @zenobius/opencode-background @renjfk/opencode-voice @howaboua/pickle-thinker opencode-rag-plugin opencode-plugin-litellm opencode-autosave-conversation opencode-relay
 ```
 
-### Bước 4: Tạo opencode.json
+### Bước 4: Clone 5 plugin không trên npm
 ```bash
-cat > opencode.json << 'EOF'
+export TMPDIR=$(mktemp -d)
+mkdir -p "$TMPDIR/opencode"
+git clone https://github.com/YuanG1944/message-bridge-opencode-plugin.git "$TMPDIR/opencode/message-bridge-opencode-plugin"
+git clone https://github.com/waybarrios/opencode-power-pack.git "$TMPDIR/opencode/opencode-power-pack"
+git clone https://github.com/JackDrogon/opencode-context-cache.git "$TMPDIR/opencode/opencode-context-cache"
+git clone https://github.com/rot13maxi/opencode-ralph.git "$TMPDIR/opencode/opencode-ralph"
+git clone https://github.com/ourmem/omem.git "$TMPDIR/opencode/omem"
+```
+
+### Bước 5: Tạo opencode.json (31 plugins)
+```bash
+cat > opencode.json << EOF
 {
-  "$schema": "https://opencode.ai/config.json",
+  "\$schema": "https://opencode.ai/config.json",
   "plugin": [
     "opencode-chrome-devtools@latest",
     "opencode-pty",
@@ -413,13 +474,34 @@ cat > opencode.json << 'EOF'
     "opencode-kiro-auth",
     "@hueyexe/opencode-ensemble@0.16.0",
     "@morphllm/opencode-morph-plugin",
-    "opencode-gemini-auth"
+    "opencode-gemini-auth",
+    "opencode-beads",
+    "opencode-websearch-cited",
+    "spotme",
+    "opencode-sessions",
+    "@ishaksebsib/opencode-tree",
+    "opencode-rules",
+    "opencode-ralph-loop",
+    "opencode-auto-resume",
+    "opencode-browser",
+    "@zenobius/opencode-background",
+    "@renjfk/opencode-voice",
+    "@howaboua/pickle-thinker",
+    "opencode-rag-plugin",
+    "opencode-plugin-litellm",
+    "opencode-autosave-conversation",
+    "opencode-relay",
+    "file://\$TMPDIR/opencode/message-bridge-opencode-plugin/index.ts",
+    "file://\$TMPDIR/opencode/opencode-power-pack/.opencode/plugins/opencode-power-pack.js",
+    "file://\$TMPDIR/opencode/opencode-context-cache/plugins/opencode-context-cache.mjs",
+    "file://\$TMPDIR/opencode/opencode-ralph/plugin/ralph.ts",
+    "file://\$TMPDIR/opencode/omem/plugins/opencode/src/index.ts"
   ]
 }
 EOF
 ```
 
-### Bước 5: Copy toàn bộ section 3 ở trên vào OpenCode và thả vào
+### Bước 6: Copy toàn bộ section 3 ở trên vào OpenCode và thả vào
 Sau khi chạy `opencode`, copy paste tất cả các lệnh `npx skills@latest add ...` từ **Section 3** ở trên.
 
 ---
@@ -429,7 +511,7 @@ Sau khi chạy `opencode`, copy paste tất cả các lệnh `npx skills@latest 
 ```
 ┌─────────────────────────────────────────────────────┐
 │                    OpenCode CLI                       │
-│  (plugins: 11  |  skills: 200  |  agents: swarm)     │
+│  (plugins: 31  |  skills: 200  |  agents: swarm)     │
 ├─────────────────────────────────────────────────────┤
 │                    API Gateway                        │
 │                 (NestJS - REST)                       │
